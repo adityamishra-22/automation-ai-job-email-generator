@@ -58,3 +58,33 @@ n8n • Google Gemini (PaLM API) • Telegram Bot API • Gmail API • Google S
 ---
 
 ## 💬 Example Telegram Flow
+
+👤 You:
+"Frontend Developer role at ABC — email careers@abc.com
+ — React + Next.js required."
+
+🤖 Bot:
+📧 Draft:
+Dear Hiring Manager,
+I am Aditya Mishra, a 2025 Computer Science graduate from IIIT Una...
+✅ Approve | ❌ Reject | 📝 Edit
+
+---
+
+## 🧠 Smart Features
+- Context-aware Gemini prompt engineering.
+- Schema validation for structured AI responses.
+- Inline human review before sending.
+- Complete audit log of every AI-generated email.
+
+---
+
+## 📸 Demo
+<img width="1597" height="547" alt="image" src="https://github.com/user-attachments/assets/54795ddb-26a7-48c1-b366-27281b3e9c5c" />
+
+
+---
+
+## 📄 License
+MIT © 2025 Aditya
+
