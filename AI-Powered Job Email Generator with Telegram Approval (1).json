@@ -1,0 +1,372 @@
+{
+  "name": "AI-Powered Job Email Generator with Telegram Approval",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "=5076224699",
+        "message": "={{ \n\n$json.output.email_draft\n\n  \"\\n\\n📧 *Detected HR Email:* \" + ( $json.output.hr_email?? \"Not found\") + \n  \"\\n\\n✅ *Approve* — to send email\\n❌ *Reject* — to discard\\n📝 *Edit* — to make changes\" \n}}\n",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8a4e1e59-64b6-4bde-a544-7ae5a8708097",
+      "name": "Send Telegram Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -240
+      ],
+      "webhookId": "05bda88d-ad99-487a-94c2-9984f9939d7a",
+      "credentials": {
+        "telegramApi": {
+          "id": "XgcECsl5JBK1FxBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=🧠 Instructions:\nYou will receive:\n\nA job description (after --- JOB DESCRIPTION ---)\n\nA resume (after --- RESUME ---)\n\nYour responsibilities:\n\nExtract:\n\nThe job title (e.g. “Frontend Developer”)\n\nThe company name (if available)\n\nThe first email address found in the job description (assume it belongs to HR or recruiter)\n\n✍️ Write a job application email that:\n\nWhen you start the draft with Dear... leave a line and then start the content\n\nStart the content always with:\n\"I am Aditya Mishra, a 2025 Computer Science graduate from IIIT Una.\"\n\nIs strictly 6 sentences max\n\nUses a professional, confident, and clear tone\n\nIncludes at least 1–2 quantified achievements (e.g. “improved speed by 25%”)\n\nHighlights only relevant skills or projects — do not list everything\n\nRefers to the company by name if available; otherwise, use phrases like “your company”, “your environment”, or “your team”\n\nInclude one brief sentence that naturally reflects the company’s domain and what it’s looking for, showing that the applicant has researched and aligned their skills with the company’s work.\n\nDo not fabricate work experience. The applicant has 6 months of internship experience only, so reflect that accurately.\n\nAvoid emotional language (e.g. \"excited\", \"dream role\", \"passion\")\n\nAvoid stacked sentences. Keep each sentence focused and concise.\n\nEnd the email with this exact formatting and content:\n\\n\\nPlease find my resume link: [Resume Link](https://drive.google.com/file/d/1pmnZ1xnyZgZWDYQewXvw6TyV9cRsGAHf/view)\\n\\nRegards,\\nAditya Mishra\n\n📦 Format:\nReturn only a valid JSON object like this:\n\n{\n  \"email_draft\": \"<email body here>\",\n  \"hr_email\": \"<email address or null>\"\n}"
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=\n`--- JOB DESCRIPTION ---\n\n{{ $json.message.text }}\nRESUME ---\nADITYA MISHRA  \nIN | adi22mishra@gmail.com | +91-7338981264 | Leetcode | LinkedIn | GitHub\n\nEDUCATION  \nB. Tech Computer Science and Engineering (2021-25)  \nIndian Institute of Information Technology Una (IIIT Una) | Cgpa: 7.50/10\n\nPROFESSIONAL EXPERIENCE  \nCodeAnt-AI (Y-Combinator-funded Startup) | Software Engineering Intern (Jan 2024 - May 2024)  \n- Built a task management dashboard in React.js serving 200+ active users.  \n- Integrated REST APIs, improved data fetch/render speed by ~25%.  \n- Optimized performance with lazy loading + reusable components.  \n- Pixel-perfect Figma UI, fixed 50+ frontend bugs, introduced RTL testing.\n\nPROJECTS  \nThe Pizza Haven — Full-stack pizza app with REST APIs and Redux Toolkit.  \nEventify — Event management platform using Next.js, Tailwind, TypeScript.\n\nSKILLS  \nReact, Next.js, TypeScript, Tailwind CSS, Node.js, REST APIs, Git, Jest, SQL, Docker (basic), AWS (basic)\n\nACHIEVEMENTS  \n- 1500+ LeetCode problems solved  \n- Rank 315 nationwide (Coding Ninjas), 3x Chess winner  \n- React, Node.js, SQL certified\n\n--- INSTRUCTIONS ---\nPlease generate a job application email tailored to this job. It should:\n- Address the hiring manager (or use “Dear Hiring Manager”)\n- Be enthusiastic, clear, and relevant to the role\n- Highlight applicable skills and experience (avoid listing the full resume again)\n- End with: \"Please find my resume attached for your reference.\\n\\nRegards,\\nAditya Mishra\"\n- Extract the **first email address** from the job description and assume it is the HR's contact.\n- Return only a raw JSON object:\n{\n  \"email_draft\": \"<string>\",\n  \"hr_email\": \"<email or null>\"\n}\n⚠️ Do NOT add any commentary, markdown, or formatting. Only return the raw JSON.\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        80,
+        -160
+      ],
+      "id": "99a39d65-4f63-4c8b-9b30-034da693f1a1",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"email_draft\": {\n      \"type\": \"string\"\n    },\n    \"hr_email\": {\n      \"type\": [\"string\", \"null\"],\n      \"format\": \"email\"\n    }\n  },\n  \"required\": [\"email_draft\", \"hr_email\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        64
+      ],
+      "id": "20d3c75a-7b34-4bf3-9368-b09fbe629ddf",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -160
+      ],
+      "id": "e921cb83-c3e8-48ae-b241-98fd90ee2a04",
+      "name": "Telegram Trigger",
+      "webhookId": "9e0697a6-b915-4bc9-8914-08c0c0642f7a",
+      "credentials": {
+        "telegramApi": {
+          "id": "XgcECsl5JBK1FxBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        656,
+        -160
+      ],
+      "id": "6fa4a367-c7ea-4f28-b9b5-dc64f11e5e6e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85321985-feb5-423a-a71e-948cafe0e5dc",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "=[True]",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -160
+      ],
+      "id": "441dc5d6-25cf-41b4-9809-575921237118",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19Ls3gFrw_R5umZM-9i9NG2QTlrWbchT259TjbVRMO20/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19Ls3gFrw_R5umZM-9i9NG2QTlrWbchT259TjbVRMO20/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_draft": "={{ $json.output.email_draft }}",
+            "hr_email": "={{ $json.output.hr_email }}",
+            "approved": "={{ $json.data.approved }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email_draft",
+              "displayName": "email_draft",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hr_email",
+              "displayName": "hr_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approved",
+              "displayName": "approved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        -64
+      ],
+      "id": "bff1a42d-aa03-42fb-b75a-abb1d1307446",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qkYhaXbIuqSOvQhU",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "subject": "Job Application - Based on your opening",
+        "message": "={{ $json.output.email_draft }}",
+        "toList": [
+          "={{ $json.output.hr_email }}"
+        ],
+        "additionalFields": {}
+      },
+      "id": "18bc6541-cd24-45f3-a218-d074b4c47602",
+      "name": "Send Gmail Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        -256
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HRdpLLINwo9WbsAJ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        96,
+        64
+      ],
+      "id": "c1548e0b-88a0-46a4-9dd6-c1b502c76048",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "00qWAd4aFKlt9WmQ",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send Telegram Approval": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Approval",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Gmail Email": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "45dc6fb5-6994-4b2a-bcfb-5d6140f0ff9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "783d7821794781d7674a6665cfa80d9eb1a40f66c841a9a485f599621972610d"
+  },
+  "id": "8IPs1clbJg6TenTy",
+  "tags": []
+}
